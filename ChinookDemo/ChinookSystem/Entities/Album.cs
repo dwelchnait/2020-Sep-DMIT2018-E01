@@ -35,6 +35,11 @@ namespace ChinookSystem.Entities
             set { _ReleaseLabel = string.IsNullOrEmpty(value) ? null : value; }
         }
 
-
+        //navigational properties
+        //An album can have zero, one or more Tracks
+        //parent(singlar) to children (collection)
+        public virtual ICollection<Track> Tracks { get; set; }
+        //an album has 1 Artist
+        public virtual Artist Artist { get; set; }
     }
 }

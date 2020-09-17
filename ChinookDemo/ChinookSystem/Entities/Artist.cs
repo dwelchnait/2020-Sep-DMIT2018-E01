@@ -63,6 +63,9 @@ namespace ChinookSystem.Entities
             set { _Name = string.IsNullOrEmpty(value) ? null : value; }
         }
 
+        //navigational properties
+        //an artist (parent) can have zero, one or more Albums (collection)
+        public virtual ICollection<Album> Albums { get; set; }
         //constructors
 
         //behaviours
