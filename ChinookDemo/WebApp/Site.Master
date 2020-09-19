@@ -104,6 +104,10 @@
                                         href="~/SamplePages/TestPage.aspx"
                                         style="color:black" runat="server">
                                    Test Page</a>
+                                 <a class="dropdown-item"
+                                        href="~/SamplePages/SearchByDDL.aspx"
+                                        style="color:black" runat="server">
+                                   Filter Search</a>
                             </div>
                          </li>
                      
