@@ -10,12 +10,16 @@ using System.Threading.Tasks;
 using ChinookSystem.Entities;
 using ChinookSystem.DAL;
 using ChinookSystem.ViewModels;
+using System.ComponentModel;    //used to expose classes and method for ODS configuration
 #endregion
 
 namespace ChinookSystem.BLL
 {
+    //expose the library class for configuartion of ODS
+    [DataObject]
     public class ArtistController
     {
+        [DataObjectMethod(DataObjectMethodType.Select,false)]
         public List<SelectionList> Artists_List()
         {
             //due to the fact that the entities wil be internal

@@ -60,5 +60,16 @@ namespace WebApp.SamplePages
                 AlbumArtistList.DataBind();
             }
         }
+
+        protected void AlbumArtistList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //access the value from a GridView Row
+            //create an alias to the GridView Row
+            GridViewRow agvrow = AlbumArtistList.Rows[AlbumArtistList.SelectedIndex];
+            //pull data off the gridview row control
+            //the data comes off as a string
+            MessageLabel.Text = (agvrow.FindControl("AlbumId") as Label).Text;
+
+        }
     }
 }

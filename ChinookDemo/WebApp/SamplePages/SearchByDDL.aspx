@@ -15,12 +15,14 @@
     <asp:GridView ID="AlbumArtistList" runat="server" 
         AutoGenerateColumns="False"
          CssClass="table table-striped"
-         GridLines="Horizontal" BorderStyle="None">
+         GridLines="Horizontal" BorderStyle="None" 
+        OnSelectedIndexChanged="AlbumArtistList_SelectedIndexChanged">
 
         <Columns>
-            <asp:TemplateField HeaderText="ID">
+            <asp:CommandField SelectText="View" ShowSelectButton="True"></asp:CommandField>
+            <asp:TemplateField Visible="False">
                 <ItemTemplate>
-                    <asp:Label ID="Label2" runat="server" 
+                    <asp:Label ID="AlbumId" runat="server" 
                         Text='<%# Eval("AlbumId") %>'></asp:Label>
                 </ItemTemplate>
                 <ItemStyle HorizontalAlign="Right"></ItemStyle>
@@ -34,10 +36,17 @@
             </asp:TemplateField>
             <asp:TemplateField HeaderText="Artist">
                 <ItemTemplate>
-                    <asp:Label ID="Label4" runat="server" 
-                        Text='<%# Eval("ArtistId") %>'></asp:Label>
+                
+                    <asp:DropDownList ID="ArtistListGV" runat="server" 
+                        DataSourceID="ArtistListGVODS" 
+                        DataTextField="DisplayText" 
+                        DataValueField="ValueId"
+                         selectedvalue='<%# Eval("ArtistId") %>'
+                         Enabled="false"
+                         Width="350px">
+                    </asp:DropDownList>
                 </ItemTemplate>
-                <ItemStyle HorizontalAlign="Right"></ItemStyle>
+                <ItemStyle ></ItemStyle>
             </asp:TemplateField>
             <asp:TemplateField HeaderText="Year">
                 <ItemTemplate>
@@ -55,4 +64,9 @@
             </asp:TemplateField>
         </Columns>
     </asp:GridView>
+    <asp:ObjectDataSource ID="ArtistListGVODS" runat="server" 
+        OldValuesParameterFormatString="original_{0}" 
+        SelectMethod="Artists_List" 
+        TypeName="ChinookSystem.BLL.ArtistController">
+    </asp:ObjectDataSource>
 </asp:Content>
