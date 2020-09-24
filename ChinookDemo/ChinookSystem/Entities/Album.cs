@@ -1,29 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-#region Additional Namespaces
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-#endregion
-
 namespace ChinookSystem.Entities
 {
-    [Table("Albums")]
-    internal class Album
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
+
+    internal partial class Album
     {
         private string _ReleaseLabel;
 
-        [Key]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Album()
+        {
+            Tracks = new HashSet<Track>();
+        }
+
         public int AlbumId { get; set; }
 
-        [Required(ErrorMessage ="Album Title is a required field")]
+        [Required(ErrorMessage = "Album Title is a required field")]
         [StringLength(160, ErrorMessage = "Album Title is limit to 160 characters")]
         public string Title { get; set; }
 
-        //[ForeignKey] DO NOT USE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         public int ArtistId { get; set; }
 
         public int ReleaseYear { get; set; }
@@ -35,11 +33,9 @@ namespace ChinookSystem.Entities
             set { _ReleaseLabel = string.IsNullOrEmpty(value) ? null : value; }
         }
 
-        //navigational properties
-        //An album can have zero, one or more Tracks
-        //parent(singlar) to children (collection)
-        public virtual ICollection<Track> Tracks { get; set; }
-        //an album has 1 Artist
         public virtual Artist Artist { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Track> Tracks { get; set; }
     }
 }

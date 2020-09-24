@@ -6,17 +6,17 @@ namespace ChinookSystem.Entities
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    internal partial class MediaType
+    internal partial class Genre
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public MediaType()
+        public Genre()
         {
             Tracks = new HashSet<Track>();
         }
 
-        public int MediaTypeId { get; set; }
+        public int GenreId { get; set; }
 
-        [StringLength(120, ErrorMessage = "MediaType Name is limited to 120 characters")]
+        [StringLength(120)]
         public string Name { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
