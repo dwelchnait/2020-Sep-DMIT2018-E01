@@ -122,6 +122,10 @@
                                         href="~/SamplePages/ProofLinqPadDevelopment.aspx"
                                         style="color:black" runat="server">
                                    Proof LinqPad Development</a>
+                                <a class="dropdown-item"
+                                        href="~/SamplePages/ODSRepeater.aspx"
+                                        style="color:black" runat="server">
+                                   Display Nested Queries using Repeater</a>
                             </div>
                          </li>
                      
@@ -161,7 +165,7 @@
             </div>
         </div>
 
-        <div class="container body-content">
+        <div class="container-fluid">
             <asp:ContentPlaceHolder ID="MainContent" runat="server">
             </asp:ContentPlaceHolder>
             <hr />
