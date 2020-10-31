@@ -87,15 +87,17 @@ namespace WebApp.SamplePages
         protected void MediaTypeFetch_Click(object sender, EventArgs e)
         {
 
-                //code to go here
+            TracksBy.Text = "MediaType";
+            SearchArg.Text = MediaTypeDDL.SelectedValue;
+            TracksSelectionList.DataBind();
 
         }
 
         protected void GenreFetch_Click(object sender, EventArgs e)
         {
-
-                //code to go here
-
+            TracksBy.Text = "Genre";
+            SearchArg.Text = GenreDDL.SelectedValue;
+            TracksSelectionList.DataBind();
         }
 
         protected void AlbumFetch_Click(object sender, EventArgs e)

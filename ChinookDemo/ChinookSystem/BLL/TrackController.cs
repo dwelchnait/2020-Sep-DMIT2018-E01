@@ -145,7 +145,7 @@ namespace ChinookSystem.BLL
                                       UnitPrice = x.UnitPrice
                                   };
                 }
-                else
+                else if (tracksby.Equals("Album"))
                 {
                     results = from x in context.Tracks
                                   orderby x.Album.Title, x.Name
@@ -164,9 +164,55 @@ namespace ChinookSystem.BLL
                                       UnitPrice = x.UnitPrice
                                   };
                 }
-
-
-                return results.ToList();
+                else if (tracksby.Equals("MediaType"))
+                {
+                    int narg = int.Parse(arg);
+                    results = from x in context.Tracks
+                              orderby x.MediaType.Name, x.Name
+                              where x.MediaTypeId == narg
+                              select new TrackList
+                              {
+                                  TrackID = x.TrackId,
+                                  Name = x.Name,
+                                  Title = x.Album.Title,
+                                  ArtistName = x.Album.Artist.Name,
+                                  MediaName = x.MediaType.Name,
+                                  GenreName = x.Genre.Name,
+                                  Composer = x.Composer,
+                                  Milliseconds = x.Milliseconds,
+                                  Bytes = x.Bytes,
+                                  UnitPrice = x.UnitPrice
+                              };
+                }
+                else if (tracksby.Equals("Genre"))
+                {
+                    int narg = int.Parse(arg);
+                    results = from x in context.Tracks
+                              orderby x.Genre.Name, x.Name
+                              where x.GenreId == narg
+                              select new TrackList
+                              {
+                                  TrackID = x.TrackId,
+                                  Name = x.Name,
+                                  Title = x.Album.Title,
+                                  ArtistName = x.Album.Artist.Name,
+                                  MediaName = x.MediaType.Name,
+                                  GenreName = x.Genre.Name,
+                                  Composer = x.Composer,
+                                  Milliseconds = x.Milliseconds,
+                                  Bytes = x.Bytes,
+                                  UnitPrice = x.UnitPrice
+                              };
+                }
+                if (tracksby.Equals("none"))
+                {
+                    return null;
+                }
+                else
+                {
+                    return results.ToList();
+                }
+                
             }
         }//eom
     }
