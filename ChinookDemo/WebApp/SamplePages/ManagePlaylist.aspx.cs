@@ -120,8 +120,43 @@ namespace WebApp.SamplePages
 
         protected void PlayListFetch_Click(object sender, EventArgs e)
         {
-            //code to go here
- 
+            //security is yet to be inmplemented
+            //the username will come from the system via the currently logged user
+            //temporarily we will hard code the username
+            string username = "HansenB";
+
+            if (string.IsNullOrEmpty(PlaylistName.Text))
+            {
+                MessageUserControl.ShowInfo("Playlist name entry error",
+                    "Missing playlist name for search. Enter playlist the press button");
+            }
+            else
+            {
+                //how do we do error handling using MessageUserControl if the
+                //  code executing is NOT part of ODS
+                // you could use Try/Catch (BUT we won't)
+                // if you examine the source code for MessageUserControl, you will
+                //  find embedded within the code the Try/Catch
+                //the syntax:
+                //  MessageUserControl.TryRun( () => { coding block});
+                //  MessageUserControl.TryRun( () => { coding block},"success title",
+                //                                           "success message");
+
+                MessageUserControl.TryRun(() => {
+                    //standard lookup
+                    //connect to BLL controller
+                    PlaylistTracksController sysmgr = new PlaylistTracksController();
+                    //issue BLL call
+                    List<UserPlaylistTrack> info = sysmgr.List_TracksForPlaylist
+                        (PlaylistName.Text, username);
+                    //assign data to control
+                    PlayList.DataSource = info;
+                    //bind data to control
+                    PlayList.DataBind();
+                },"PlayList","View the current requested playlist");
+
+                
+            }
         }
 
         protected void MoveDown_Click(object sender, EventArgs e)
