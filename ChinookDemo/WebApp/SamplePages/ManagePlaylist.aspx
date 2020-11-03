@@ -62,7 +62,7 @@
             <AlternatingItemTemplate>
                 <tr style="background-color: #FFFFFF; color: #284775;">
                     <td>
-                        <asp:LinkButton ID="AddtoPlaylist" runat="server"
+                        <asp:LinkButton ID="AddtoPlaylist" runat="server" 
                              CssClass="btn" CommandArgument='<%# Eval("TrackID") %>'>
                             <i class="fa fa-plus" style="color:Red; font-size:2em;"></i>
                             <%--<span aria-hidden="true" class="glyphicon glyphicon-plus">&nbsp;</span>--%>
