@@ -138,8 +138,144 @@ namespace ChinookSystem.BLL
         {
             using (var context = new ChinookSystemContext())
             {
-                //code to go here 
+                //trx
+                //check to see if the playlist exsits
+                //no: error exception
+                //yes:
+                //      check to see if song exists
+                //      no: error exception
+                //      yes:
+                //          up
+                //          check to see if the song is at the top
+                //              yes: error exception
+                //              no:
+                //                  move record 4; above record 3
+                //                  find record above (tracknumber -1)
+                //                  change above tracknumber (increment)
+                //                  move track tracknumber (decrement)
+                //          down
+                //          check to see if the song is at the bottom
+                //              yes: error exception
+                //              no:
+                //                  move record 4; below record 5
+                //                  find record below (tracknumber +1)
+                //                  change below tracknumber (decrement)
+                //                  move track tracknumber (increment)
+                //can I stage/commit
+                //no: throw the exception (BRE)
+                //yes:
+                //    stage updates
+                //    commit
 
+                PlaylistTrack moveTrack = null;
+                PlaylistTrack otherTrack = null; 
+                List<string> errors = new List<string>(); // this is to be used by BusinessRuleException cast
+                //.FirstOrDefault() returns the first instance matching the criteria or null
+                Playlist exists = (from x in context.Playlists
+                                   where x.Name.Equals(playlistname)
+                                      && x.UserName.Equals(username)
+                                   select x).FirstOrDefault();
+                if (exists == null)
+                {
+                    errors.Add("Play list does not exist");
+                }
+                else
+                {
+                    moveTrack = (from x in context.PlaylistTracks
+                                 where x.Playlist.Name.Equals(playlistname)
+                                    && x.Playlist.UserName.Equals(username)
+                                    && x.TrackId == trackid
+                                 select x).FirstOrDefault();
+                    if (moveTrack == null)
+                    {
+                        errors.Add("Play list track does not exist");
+                    }
+                    else
+                    {
+                        if (direction.Equals("up"))
+                        {
+                            //up
+                            //this means the tracknumber on the selected track
+                            //      will decrease (track 4 -> 3)
+
+                            //prep for move, check if the track is at the top
+                            if (moveTrack.TrackNumber == 1)
+                            {
+                                errors.Add("Play list track already at the top.");
+                            }
+                            else
+                            {
+                                //manipulate the actal records
+                                otherTrack = (from x in context.PlaylistTracks
+                                              where x.Playlist.Name.Equals(playlistname)
+                                                 && x.Playlist.UserName.Equals(username)
+                                                 && x.TrackNumber == (moveTrack.TrackNumber - 1)
+                                              select x).FirstOrDefault();
+                                if(otherTrack == null)
+                                {
+                                    errors.Add("Missng required othe song track record.");
+                                }
+                                else
+                                {
+                                    moveTrack.TrackNumber -= 1;
+                                    otherTrack.TrackNumber += 1;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //down
+                            //this means the tracknumber on the selected track
+                            //      will increase (track 4 -> 5)
+
+                            //prep for move, check if the track is at the bottom
+                            int songcount = (from x in context.PlaylistTracks
+                                             where x.Playlist.Name.Equals(playlistname)
+                                                && x.Playlist.UserName.Equals(username)
+                                             select x).Count();
+                            if (moveTrack.TrackNumber == songcount)
+                            {
+                                errors.Add("Play list track already at the bottom.");
+                            }
+                            else
+                            {
+                                //manipulate the actal records
+                                otherTrack = (from x in context.PlaylistTracks
+                                              where x.Playlist.Name.Equals(playlistname)
+                                                 && x.Playlist.UserName.Equals(username)
+                                                 && x.TrackNumber == (moveTrack.TrackNumber + 1)
+                                              select x).FirstOrDefault();
+                                if (otherTrack == null)
+                                {
+                                    errors.Add("Missng required othe song track record.");
+                                }
+                                else
+                                {
+                                    moveTrack.TrackNumber += 1;
+                                    otherTrack.TrackNumber -= 1;
+                                }
+                            }
+                        }
+                    }
+                }
+                //check to see if an error has occured, if so throw
+                if (errors.Count > 0)
+                {
+                    throw new BusinessRuleException("Move Track", errors);
+                }
+                else
+                {
+                    //stage
+                    //these are updates
+                    //a) you can stage an update to alter the entire entity (CRUD)
+                    //b) you can stage an update to an entity referencing JUST the property
+                    //      to be modified
+                    //in this example do stage (b)
+                    context.Entry(moveTrack).Property("TrackNumber").IsModified = true;
+                    context.Entry(otherTrack).Property(nameof(PlaylistTrack.TrackNumber)).IsModified = true;
+                    //commit
+                    context.SaveChanges();
+                }
             }
         }//eom
 
