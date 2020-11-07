@@ -121,6 +121,36 @@ namespace ChinookSystem.BLL
                 }
 
                 //handle the creation of the PlaylistTrack record
+                newTrack = new PlaylistTrack();
+                //load the new record
+                newTrack.TrackId = trackid;
+                newTrack.TrackNumber = tracknumber;
+
+                //add the track to the table
+                //senario 1) New Playlist
+                //  the exists instance is a NEW instance tha is YET
+                //      to be played on the sql database
+                //  THEREFORE it DOES NOT YET have a primary key value !!!!!
+                //  the current value of the PlaylistId on the exists instance
+                //      is the default system value for an integer (0)
+                //scenario 2)Existing playlist
+                //  the exists instance has the needed PlaylistId value
+
+                //the solution to both these scenarios is to use
+                //      navigational properties during the ACTUAL .Add command (staging)
+                //the entityframework will, on your behave, ensure that the
+                //      adding of records to th edatabase will be done in the
+                //      appropriate order AND add the missing compound primay key
+                //      value (PlaylistId) to the child record newtrack
+
+                //just using the context to do the add DOES NOT tell entityframework
+                //      to ensure the missing primary key is to be handle
+                //this will abort with message referring to the primary key being 0
+                //context.PlaylistTracks.Add(newTrack);
+
+                //instead
+                exists.PlaylistTracks.Add(newTrack);
+
 
                 //all validation has been passed?
                 if (errors.Count > 0)
@@ -284,10 +314,72 @@ namespace ChinookSystem.BLL
         {
             using (var context = new ChinookSystemContext())
             {
-               //code to go here
+                //trx
+                //check to see if the playlist exists
+                //   no: msg
+                //   yes:
+                //       create a list of tracks to kept (need to know which records to renumber)
+                //       remove the tracks in the incoming list (multiple deletes)
+                //       re-sequence the kept tracks (update)
+                //       commit
+                List<string> errors = new List<string>(); // this is to be used by BusinessRuleException cast
+                //.FirstOrDefault() returns the first instance matching the criteria or null
+                Playlist exists = (from x in context.Playlists
+                                   where x.Name.Equals(playlistname)
+                                      && x.UserName.Equals(username)
+                                   select x).FirstOrDefault();
+                if (exists == null)
+                {
+                    errors.Add("Play list does not exist");
+                }
+                else
+                {
+                    //find tracks to keep
+                    //used .Any technique of list a vs list b
+                    //could this also be done with .Exclude()
+                    var trackskept = context.PlaylistTracks
+                                     .Where(tr => tr.Playlist.Name.Equals(playlistname)
+                                                && tr.Playlist.UserName.Equals(username)
+                                                && !trackstodelete.Any(tod => tod == tr.TrackId))
+                                     .OrderBy(tr => tr.TrackNumber)
+                                     .Select(tr => tr);
+                    //remove the tracks listed in trackstodelete
+                    PlaylistTrack item = null;
+                    foreach(int deletetrackid in trackstodelete)
+                    {
+                        item = context.PlaylistTracks
+                                     .Where(tr => tr.Playlist.Name.Equals(playlistname)
+                                                && tr.Playlist.UserName.Equals(username)
+                                                && tr.TrackId == deletetrackid)
+                                     .Select(tr => tr).FirstOrDefault();
+                        if (item !=null)
+                        {
+                            //stage the removal
+                            exists.PlaylistTracks.Remove(item);
+                        }
+                    }
 
-
-            }
+                    //re-sequence
+                    //don't care if the remaining tracknumbers are 1,4,5,8,10
+                    //renumber 1(1),2(4),3(5),4(8),5(10)
+                    int number = 1;
+                    foreach(var track in trackskept)
+                    {
+                        track.TrackNumber = number;
+                        //stage update
+                        context.Entry(track).Property(nameof(PlaylistTrack.TrackNumber)).IsModified = true;
+                        number++;
+                    }
+                }
+                if (errors.Count > 0)
+                {
+                    throw new BusinessRuleException("Remove Tracks", errors);
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+             }
         }//eom
     }
 }

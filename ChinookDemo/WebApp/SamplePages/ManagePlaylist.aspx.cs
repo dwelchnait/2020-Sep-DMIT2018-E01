@@ -302,7 +302,52 @@ namespace WebApp.SamplePages
         protected void DeleteTrack_Click(object sender, EventArgs e)
         {
             //code to go here
- 
+            string username = "HansenB";
+            //validation of incoming data
+            if (string.IsNullOrEmpty(PlaylistName.Text))
+            {
+                MessageUserControl.ShowInfo("Missing data", "Enter the playlist name");
+            }
+            else
+            {
+                if (PlayList.Rows.Count == 0)
+                {
+                    MessageUserControl.ShowInfo("Missing data", "You need to select from an displayed play list.");
+                }
+                else
+                {
+                    //collect all trackids that are to be removed
+                    //at least one track must be selected
+                    CheckBox rowSelected = null;
+                    List<int> trackids = new List<int>();
+
+                    for (int i = 0; i < PlayList.Rows.Count; i++)
+                    {
+                        rowSelected = PlayList.Rows[i].FindControl("Selected") as CheckBox;
+                        if (rowSelected.Checked)
+                        {
+                            trackids.Add( int.Parse((PlayList.Rows[i].FindControl("TrackID") as Label).Text));
+                        }
+                    }
+
+                    if (trackids.Count == 0)
+                    {
+                        MessageUserControl.ShowInfo("Remove Tracks", "You must select at least one track to remove");
+                    }
+                    else
+                    {
+                        MessageUserControl.TryRun(() => {
+                            PlaylistTracksController sysmgr = new PlaylistTracksController();
+                            sysmgr.DeleteTracks(username, PlaylistName.Text, trackids);
+                            //refresh the playlist
+                            List<UserPlaylistTrack> info = sysmgr.List_TracksForPlaylist
+                               (PlaylistName.Text, username);
+                            PlayList.DataSource = info;
+                            PlayList.DataBind();
+                        }, "Remove Track(s)", "Track has been removed from the playlist");
+                    }
+                }
+            }
         }
 
         protected void TracksSelectionList_ItemCommand(object sender, 
