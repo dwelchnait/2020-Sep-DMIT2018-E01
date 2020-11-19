@@ -8,7 +8,8 @@ using System.Web.UI.WebControls;
 #region Additonal Namespaces
 using ChinookSystem.BLL;
 using ChinookSystem.ViewModels;
-//using WebApp.Security;
+using WebApp.Security;
+
 #endregion
 
 namespace WebApp.SamplePages
@@ -19,16 +20,34 @@ namespace WebApp.SamplePages
         {
             TracksSelectionList.DataSource = null;
 
-            //add a test to see if the user is logged in
+            //test our security
+            //are you logged in?
             if (Request.IsAuthenticated)
             {
-                //yes logged in
-                //are you allowed on this page
-                //  that is, are you in an acceptable role for this page
-                if(User.IsInRole("Customers"))
+                if (User.IsInRole("Customers"))
                 {
-                    //Yes you are allow as a customer into this page
-                    MessageUserControl.ShowInfo("Security", "Successful login");
+
+                    //obtain the CustomerId on the security User record
+                    SecurityController ssysmgr = new SecurityController();
+                    int? customerid = ssysmgr.GetCurrentUserCustomerId(User.Identity.Name);
+
+                    //need to convert the int? to an int for the call to the CustomerController method
+                    //int custid = customerid == null ? default(int) : int.Parse(customerid.ToString());
+                    int custid = customerid ?? default(int);
+
+                    MessageUserControl.TryRun(() => {
+                        CustomerController csysmgr = new CustomerController();
+                        CustomerItem item = csysmgr.Customer_FindByID(custid);
+                        if (item == null)
+                        {
+                            LoggedUser.Text = "Unknown";
+                            throw new Exception("Logged customer cannot be found on file ");
+                        }
+                        else
+                        {
+                            LoggedUser.Text = item.LastName + ", " + item.FirstName;
+                        }
+                    });
                 }
                 else
                 {
@@ -37,10 +56,10 @@ namespace WebApp.SamplePages
             }
             else
             {
-                //no not logged in
                 Response.Redirect("~/Account/Login.aspx");
             }
         }
+
 
         #region Error Handling
         protected void SelectCheckForException(object sender,
@@ -145,7 +164,11 @@ namespace WebApp.SamplePages
             //security is yet to be inmplemented
             //the username will come from the system via the currently logged user
             //temporarily we will hard code the username
-            string username = "HansenB";
+            //string username = "HansenB";
+
+            //use security to obtained the username from the logged user
+
+            string username = User.Identity.Name;
 
             if (string.IsNullOrEmpty(PlaylistName.Text))
             {
@@ -307,7 +330,8 @@ namespace WebApp.SamplePages
 
         protected void MoveTrack(int trackid, int tracknumber, string direction)
         {
-            string username = "HansenB";
+            //string username = "HansenB";
+            string username = User.Identity.Name;
             //call BLL to move track
             MessageUserControl.TryRun(() => {
                 PlaylistTracksController sysmgr = new PlaylistTracksController();
@@ -324,7 +348,8 @@ namespace WebApp.SamplePages
         protected void DeleteTrack_Click(object sender, EventArgs e)
         {
             //code to go here
-            string username = "HansenB";
+            //string username = "HansenB";
+            string username = User.Identity.Name;
             //validation of incoming data
             if (string.IsNullOrEmpty(PlaylistName.Text))
             {
@@ -375,7 +400,8 @@ namespace WebApp.SamplePages
         protected void TracksSelectionList_ItemCommand(object sender, 
             ListViewCommandEventArgs e)
         {
-            string username = "HansenB";
+            //string username = "HansenB";
+            string username = User.Identity.Name;
             //validation of incoming data
             if (string.IsNullOrEmpty(PlaylistName.Text))
             {
